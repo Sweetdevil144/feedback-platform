@@ -1,0 +1,31 @@
+FULL STACK INTERN ASSIGNMENT
+OVERVIEW
+You're tasked with building a simplified Feedback Collection Platform where users (customers) can fill out feedback forms, and businesses (admins) can create
+forms and view responses in a dashboard. This assignment evaluates your full stack capabilities and product thinking.
+USER ROLES
+1. Admin/Business:
+Register & login
+Create a feedback form with customizable questions (text/multiple-choice)
+View responses to the form (tabular and summary view)
+2. Customer/User:
+Access a form via a public URL
+Submit feedback (no login needed)
+FEATURES
+Auth: JWT/session-based auth for Admin. Public form access for users
+Create Form: Admin creates form with title and 3-5 questions
+Share Link: Generate a public URL for form submission
+Submit Response: Public user fills and submits the form
+View Dashboard: Admin can see all responses (raw + basic summary)
+Tech Stack: Your choice (MERN or similar recommended)
+BONUS (OPTIONAL)
+Export responses as CSV
+Mobile-responsive UI
+EXPECTED DELIVERABLES
+GitHub repo with README.md file, clearly stating instructions to run locally, and approach and design decisions taken to make this product
+EVALUATION CRITERIA
+Code structure and modularity
+UI/UX quality and usability
+Data modeling and flexibility
+API quality
+Edge case handling
+Clarity of README
