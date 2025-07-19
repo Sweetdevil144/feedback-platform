@@ -81,8 +81,9 @@ const CreateFormPage: React.FC = () => {
       const response = await formAPI.createForm(data);
       toast.success('Form created successfully!');
       router.push('/dashboard');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to create form');
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      toast.error(err.message || 'Failed to create form');
     } finally {
       setIsLoading(false);
     }

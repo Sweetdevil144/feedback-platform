@@ -10,7 +10,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { 
   User,
   Mail,
-  Calendar,
   Edit,
   Save,
   X,
@@ -46,8 +45,9 @@ const ProfilePage: React.FC = () => {
       setIsEditing(false);
       // Refresh user data
       window.location.reload();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to update profile');
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      toast.error(err.message || 'Failed to update profile');
     } finally {
       setLoading(false);
     }

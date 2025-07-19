@@ -127,7 +127,7 @@ const HomePage: React.FC = () => {
               Everything You Need to Collect Feedback
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              From simple surveys to complex feedback forms, we've got you covered with powerful features.
+              From simple surveys to complex feedback forms, we&apos;ve got you covered with powerful features.
             </p>
           </motion.div>
 
@@ -173,7 +173,7 @@ const HomePage: React.FC = () => {
                 Why Choose FeedbackHub?
               </h2>
               <p className="text-xl text-gray-600 mb-8">
-                We've built the perfect platform for collecting feedback with modern design and powerful features.
+                We&apos;ve built the perfect platform for collecting feedback with modern design and powerful features.
               </p>
               
               <div className="space-y-4">
