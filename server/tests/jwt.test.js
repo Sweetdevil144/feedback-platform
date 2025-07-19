@@ -56,9 +56,9 @@ describe('JWT Utilities', () => {
 
     it('should throw error when JWT_SECRET is not set', () => {
       delete process.env.JWT_SECRET;
-
+      const { getJWTSecret } = require('../config/jwt');
       expect(() => {
-        require('../config/jwt');
+        getJWTSecret();
       }).toThrow('JWT_SECRET not set in environment variables');
     });
   });

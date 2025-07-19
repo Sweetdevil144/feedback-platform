@@ -1,4 +1,4 @@
-# FeedbackHub Frontend
+# FeedbackHub : AI Docs
 
 A modern, responsive React frontend for the Feedback Collection Platform built with Next.js, TypeScript, and Tailwind CSS.
 
@@ -11,6 +11,7 @@ A modern, responsive React frontend for the Feedback Collection Platform built w
 - **Form Builder**: Create forms with 3-5 questions (text/multiple-choice)
 - **Analytics**: View response summaries and statistics
 - **Export**: Download responses as CSV
+- **Profile Management**: Edit user profile and account settings
 
 ### **Public Features**
 
@@ -25,6 +26,7 @@ A modern, responsive React frontend for the Feedback Collection Platform built w
 - **Form Validation**: Comprehensive client-side validation
 - **Real-time Feedback**: Toast notifications
 - **Type Safety**: Full TypeScript support
+- **Error Handling**: Robust error handling with fallbacks
 
 ## 🛠 Tech Stack
 
@@ -34,7 +36,7 @@ A modern, responsive React frontend for the Feedback Collection Platform built w
 - **UI Components**: Custom component library
 - **Animations**: Framer Motion
 - **Forms**: React Hook Form + Zod validation
-- **HTTP Client**: Axios
+- **HTTP Client**: Axios with interceptors
 - **Notifications**: React Hot Toast
 - **Icons**: Lucide React
 
@@ -58,7 +60,7 @@ A modern, responsive React frontend for the Feedback Collection Platform built w
    Create `.env.local` in the client directory:
 
    ```ini
-   NEXT_PUBLIC_API_URL=http://localhost:5000/api
+   NEXT_PUBLIC_API_URL=http://localhost:8000/api
    NEXT_PUBLIC_APP_NAME=FeedbackHub
    ```
 
@@ -76,16 +78,29 @@ A modern, responsive React frontend for the Feedback Collection Platform built w
 ```bash
 client/
 ├── app/                    # Next.js App Router
+│   ├── analytics/         # Analytics dashboard
 │   ├── dashboard/         # Admin dashboard
 │   ├── forms/            # Form management
+│   │   ├── create/       # Form builder
+│   │   └── [formId]/     # Dynamic form routes
+│   │       ├── page.tsx  # Public form view
+│   │       └── responses/ # Response viewer
 │   ├── login/            # Authentication
+│   ├── profile/          # User profile
 │   ├── register/         # User registration
 │   └── globals.css       # Global styles
 ├── components/           # Reusable components
 │   ├── ui/              # Base UI components
+│   │   ├── Button.tsx   # Button component
+│   │   ├── Input.tsx    # Input component
+│   │   └── Card.tsx     # Card component
 │   └── layout/          # Layout components
+│       └── Header.tsx   # Navigation header
 ├── contexts/            # React contexts
+│   └── AuthContext.tsx  # Authentication context
 ├── lib/                 # Utilities and API
+│   ├── api.ts          # API client with interceptors
+│   └── utils.ts        # Utility functions
 └── types/               # TypeScript types
 ```
 
@@ -158,14 +173,16 @@ npm run test:coverage # Coverage report
 
 1. User registers/logs in
 2. JWT token stored in localStorage
-3. Token automatically attached to API requests
-4. Automatic logout on token expiration
+3. Token automatically attached to API requests via Axios interceptors
+4. Automatic logout on token expiration (401 responses)
 
 ### **Protected Routes**
 
 - `/dashboard` - Admin dashboard
 - `/forms/create` - Form builder
 - `/forms/[id]/responses` - Response viewer
+- `/analytics` - Analytics dashboard
+- `/profile` - User profile
 
 ### **Public Routes**
 
@@ -187,27 +204,45 @@ npm run test:coverage # Coverage report
 - **Network errors**: Toast notifications
 - **Validation errors**: Inline form errors
 - **Auth errors**: Redirect to login
+- **404 errors**: Graceful fallbacks
 
 ## 🎯 Key Features
 
 ### **Form Builder**
 
-- **Dynamic questions**: Add/remove questions
+- **Dynamic questions**: Add/remove questions (3-5 required)
 - **Question types**: Text and multiple-choice
-- **Validation**: Real-time form validation
+- **Validation**: Real-time form validation with Zod
 - **Preview**: Live form preview
+- **Options management**: Add/remove multiple choice options
 
 ### **Dashboard**
 
-- **Statistics**: Form and response counts
+- **Statistics**: Form and response counts with null safety
 - **Quick actions**: Create, view, export forms
 - **Responsive grid**: Adapts to screen size
+- **Real-time updates**: Dynamic response counting
 
 ### **Public Forms**
 
 - **No registration**: Anyone can submit
 - **Mobile optimized**: Touch-friendly interface
 - **Success feedback**: Confirmation messages
+- **Form validation**: Client-side validation
+
+### **Analytics Dashboard**
+
+- **Comprehensive stats**: Total forms, responses, questions
+- **Time-based metrics**: This week/month responses
+- **Top performing forms**: Sorted by response count
+- **Visual indicators**: Progress bars and charts
+
+### **Profile Management**
+
+- **Edit profile**: Update name and email
+- **Account info**: User ID and status
+- **Security info**: JWT authentication details
+- **Logout functionality**: Secure logout
 
 ## 🚀 Deployment
 
@@ -288,3 +323,20 @@ For issues and questions:
 - **Community**: Active development community
 
 ---
+
+## 🎉 Implementation Summary
+
+This frontend implementation provides a complete, production-ready feedback collection platform with:
+
+✅ **Full Authentication System** - JWT-based login/register  
+✅ **Dynamic Form Builder** - Create forms with 3-5 questions  
+✅ **Public Form Access** - Share forms via public URLs  
+✅ **Response Management** - View and export responses  
+✅ **Analytics Dashboard** - Comprehensive statistics  
+✅ **Profile Management** - User account settings  
+✅ **Mobile Responsive** - Works on all devices  
+✅ **Type Safety** - Full TypeScript implementation  
+✅ **Error Handling** - Robust error management  
+✅ **Modern UI/UX** - Beautiful, intuitive interface  
+
+The application is now fully functional with all features working correctly!

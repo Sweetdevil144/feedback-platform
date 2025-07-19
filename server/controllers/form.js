@@ -41,8 +41,7 @@ const getAllForms = async (req, res) => {
     // User is already authenticated via middleware
     const user = req.user;
 
-    // Only return forms created by this user
-    const forms = await Form.find({ createdBy: user._id }).select("-responses");
+    const forms = await Form.find({ createdBy: user._id });
     res.status(200).json({ forms });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
@@ -121,7 +120,7 @@ const getFormResponses = async (req, res) => {
     if (form.createdBy.toString() !== user._id.toString()) {
       return res.status(403).json({ message: "Not authorized to view responses for this form" });
     }
-    res.status(200).json({ responses: form.responses });
+    res.status(200).json({ form });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
