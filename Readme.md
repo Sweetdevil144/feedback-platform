@@ -13,4 +13,4 @@ A modern, full-stack feedback collection platform for businesses to create custo
 ## Project Links
 
 - **Backend API:** [https://feedback-platform-ywps.onrender.com](https://feedback-platform-ywps.onrender.com)
-- **Frontend:** _TBD_
+- **Frontend:** [https://feedback-hub-nu.vercel.app/](https://feedback-hub-nu.vercel.app/)
