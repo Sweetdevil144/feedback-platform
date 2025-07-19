@@ -1,6 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const authenticateToken = require("../middleware/auth");
+const {
+  validateFormCreation,
+  validateFormResponse,
+  validateFormId
+} = require("../middleware/validation");
 
 const {
   createForm,
@@ -13,14 +18,14 @@ const {
 } = require("../controllers/form");
 
 // Protected routes (authentication required)
-router.post("/", authenticateToken, createForm);
+router.post("/", authenticateToken, validateFormCreation, createForm);
 router.get("/", authenticateToken, getAllForms);
-router.get("/:formId/responses", authenticateToken, getFormResponses);
-router.get("/:formId/export", authenticateToken, exportFormResponses);
+router.get("/:formId/responses", authenticateToken, validateFormId, getFormResponses);
+router.get("/:formId/export", authenticateToken, validateFormId, exportFormResponses);
 
 // Public routes (no authentication required)
-router.get("/:formId", getFormById);
-router.post("/:formId/responses", submitFormResponse);
-router.get("/:formId/summary", getFormSummary);
+router.get("/:formId", validateFormId, getFormById);
+router.post("/:formId/responses", validateFormId, validateFormResponse, submitFormResponse);
+router.get("/:formId/summary", validateFormId, getFormSummary);
 
 module.exports = router;
