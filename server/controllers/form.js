@@ -1,19 +1,9 @@
 const Form = require("../models/Form");
-const { verifyToken } = require("../config/jwt");
+const { Parser } = require("json2csv");
 
-// Create a new feedback form (protected)
 const createForm = async (req, res) => {
   try {
-    // Auth: Bearer token in header
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "No token provided" });
-    }
-    const token = authHeader.split(" ")[1];
-    const user = await verifyToken(token);
-    if (!user) {
-      return res.status(401).json({ message: "Invalid or expired token" });
-    }
+    const user = req.user;
 
     const { title, questions } = req.body;
     if (!title || !Array.isArray(questions)) {
@@ -48,16 +38,8 @@ const createForm = async (req, res) => {
 // List all forms (protected)
 const getAllForms = async (req, res) => {
   try {
-    // Auth: Bearer token in header
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "No token provided" });
-    }
-    const token = authHeader.split(" ")[1];
-    const user = await verifyToken(token);
-    if (!user) {
-      return res.status(401).json({ message: "Invalid or expired token" });
-    }
+    // User is already authenticated via middleware
+    const user = req.user;
 
     // Only return forms created by this user
     const forms = await Form.find({ createdBy: user._id }).select("-responses");
@@ -128,16 +110,7 @@ const submitFormResponse = async (req, res) => {
 // Get all raw responses (protected)
 const getFormResponses = async (req, res) => {
   try {
-    // Auth: Bearer token in header
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "No token provided" });
-    }
-    const token = authHeader.split(" ")[1];
-    const user = await verifyToken(token);
-    if (!user) {
-      return res.status(401).json({ message: "Invalid or expired token" });
-    }
+    const user = req.user;
 
     const { formId } = req.params;
     const form = await Form.findOne({ publicId: formId });
@@ -154,10 +127,110 @@ const getFormResponses = async (req, res) => {
   }
 };
 
+// Get aggregated summary stats for a form (public or protected)
+const getFormSummary = async (req, res) => {
+  try {
+    const { formId } = req.params;
+    const form = await Form.findOne({ publicId: formId }).lean();
+    if (!form) {
+      return res.status(404).json({ message: "Form not found" });
+    }
+
+    // Prepare summary stats per question
+    const questions = form.questions;
+    const responses = form.responses || [];
+    const questionStats = questions.map((q, idx) => {
+      if (q.type === "multiple-choice") {
+        // Count occurrences of each option
+        const optionCounts = {};
+        q.options.forEach(opt => { optionCounts[opt] = 0; });
+        responses.forEach(resp => {
+          const ans = resp.answers.find(a => a.questionIndex === idx);
+          if (ans && optionCounts.hasOwnProperty(ans.answer)) {
+            optionCounts[ans.answer]++;
+          }
+        });
+        return {
+          questionText: q.questionText,
+          type: q.type,
+          options: q.options,
+          counts: optionCounts,
+        };
+      } else {
+        // For text, just count number of responses
+        const count = responses.filter(resp => {
+          const ans = resp.answers.find(a => a.questionIndex === idx);
+          return ans && typeof ans.answer === "string" && ans.answer.trim() !== "";
+        }).length;
+        return {
+          questionText: q.questionText,
+          type: q.type,
+          responseCount: count,
+        };
+      }
+    });
+
+    res.status(200).json({
+      id: form.publicId,
+      title: form.title,
+      questions: questions,
+      responsesCount: responses.length,
+      questionStats,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+// Export form responses as CSV (protected)
+const exportFormResponses = async (req, res) => {
+  try {
+    const user = req.user;
+
+    const { formId } = req.params;
+    const form = await Form.findOne({ publicId: formId });
+    if (!form) {
+      return res.status(404).json({ message: "Form not found" });
+    }
+    // Only allow owner to export responses
+    if (form.createdBy.toString() !== user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized to export responses for this form" });
+    }
+
+    // Prepare CSV data
+    const questions = form.questions;
+    const responses = form.responses || [];
+    // Build header: Q1, Q2, ... and submittedAt
+    const fields = questions.map((q, idx) => `Q${idx + 1}: ${q.questionText}`);
+    fields.push("submittedAt");
+
+    const data = responses.map(resp => {
+      const row = {};
+      questions.forEach((q, idx) => {
+        const ansObj = resp.answers.find(a => a.questionIndex === idx);
+        row[`Q${idx + 1}: ${q.questionText}`] = ansObj ? ansObj.answer : "";
+      });
+      row["submittedAt"] = resp.submittedAt ? new Date(resp.submittedAt).toISOString() : "";
+      return row;
+    });
+
+    const parser = new Parser({ fields });
+    const csv = parser.parse(data);
+
+    res.header("Content-Type", "text/csv");
+    res.attachment(`form_${form.publicId}_responses.csv`);
+    return res.send(csv);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
 module.exports = {
   createForm,
   getAllForms,
   getFormById,
   submitFormResponse,
   getFormResponses,
+  getFormSummary,
+  exportFormResponses,
 };

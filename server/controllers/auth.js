@@ -1,5 +1,6 @@
 const User = require("../models/User");
-const { generateToken, verifyToken } = require("../config/jwt");
+const { generateToken } = require("../config/jwt");
+const bcrypt = require("bcrypt");
 
 
 // Register a new user
@@ -36,10 +37,16 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: "Email and password are required" });
     }
     const user = await User.findOne({ email });
-    if (!user || user.password !== password) {
-      // In production, use hashed passwords and a constant-time comparison
+    if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
+    
+    // Compare password with hashed password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+    
     const token = generateToken(user);
     res.status(200).json({
       user: {
@@ -80,15 +87,7 @@ const getUserById = async (req, res) => {
 // Get current user's profile using JWT token
 const getProfile = async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "No token provided" });
-    }
-    const token = authHeader.split(" ")[1];
-    const user = await verifyToken(token);
-    if (!user) {
-      return res.status(401).json({ message: "Invalid or expired token" });
-    }
+    const user = req.user;
     res.status(200).json({ user });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });

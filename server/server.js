@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const configureMiddleware = require("./middleware/middleware");
 const authRoutes = require("./routes/auth");
+const formRoutes = require("./routes/form");
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ configureMiddleware(app);
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/forms", formRoutes);
 
 app.get("/", (req, res) => {
   res.send("API is running");
